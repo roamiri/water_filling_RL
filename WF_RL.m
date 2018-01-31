@@ -31,7 +31,7 @@ sumQ = ones(1, Npower) * 0.0;
 % meanQ = ones(size(states,1) , Npower) * 0.0;
 
 alpha = 0.5; gamma = 0.9; epsilon = 0.1 ; Iterations = 50000;
-
+CL = 1;
 %% Main Loop
 %     fprintf('Loop for %d number of FBS :\t', fbsCount);
 %      textprogressbar(sprintf('calculating outputs:'));
@@ -42,15 +42,18 @@ alpha = 0.5; gamma = 0.9; epsilon = 0.1 ; Iterations = 50000;
     agents{2} = agent(2,2.0);
     agents{3} = agent(3,5.0);
     agents{4} = agent(4,3.0);
-%     for i=1:4
-%         agents{i} = agent(i); % Power Allocation Agent (PA)
-%     end
+    for i=1:size(agents,2)
+        PA = agents{i};
+        PA = PA.setQTable(Q_init);
+        agents{i} = PA;
+    end
    
     extra_time = 0.0;
+    textprogressbar(sprintf('calculating outputs:'));
     for episode = 1:Iterations
-%          textprogressbar((episode/Iterations)*100);
+        textprogressbar((episode/Iterations)*100);
         sumQ = sumQ * 0.0;
-        for j=1:size(BS_list,2)
+        for j=1:size(agents,2)
             PA = agents{j};
             sumQ = sumQ + PA.Q; 
         end
@@ -66,31 +69,31 @@ alpha = 0.5; gamma = 0.9; epsilon = 0.1 ; Iterations = 50000;
                 else
                     a = tic;
                     if CL == 1 
-                        [M, index] = max(sumQ(kk,:));     % CL method
+                        [M, index] = max(sumQ(1,:));     % CL method
                     else                                    
-                        [M, index] = max(PA.Q(kk,:));   %IL method
+                        [M, index] = max(PA.Q(1,:));   %IL method
                     end
                       a1 = toc(a);
                       PA.index = index;
                       PA.P = actions(index);
                 end
-                agents{i} = PA;
+                agents{j} = PA;
             end
         else
             for j=1:size(agents,2)
                 PA = agents{j};
                 if CL == 1 
-                    [M, index] = max(sumQ(kk,:));     % CL method
+                    [M, index] = max(sumQ(1,:));     % CL method
                 else                                    
-                    [M, index] = max(PA.Q(kk,:));   %IL method
+                    [M, index] = max(PA.Q(1,:));   %IL method
                 end
                 PA.index = index;
                 PA.P = actions(index);
-                agents{i} = PA;
+                agents{j} = PA;
             end
         end 
 % Calculate Reward
-    sum_p = 0.;
+    sum_p = 0;
     for j=1:size(agents,2)
         PA = agents{j};
         sum_p = sum_p + PA.P;
@@ -100,7 +103,7 @@ alpha = 0.5; gamma = 0.9; epsilon = 0.1 ; Iterations = 50000;
         index = PA.index;
         R = Reward(PA.P, sum_p, Pmax, PA.noise_level);
         PA.Q(index) = PA.Q(index) + alpha*(R-PA.Q(index));
-        agents{i} = PA;
+        agents{j} = PA;
     end
     % break if convergence: small deviation on q for 1000 consecutive
     errorVector(episode) =  sum(sum(abs(Q1-sumQ)));

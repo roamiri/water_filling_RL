@@ -2,7 +2,7 @@ classdef agent
    properties
       index
       id
-      P
+      P 
       noise_level
       state = zeros(1,2)
       C
@@ -10,7 +10,7 @@ classdef agent
       Q
    end
    methods
-      function obj = agent(obj,id,noise_level)
+      function obj = agent(id,noise_level)
         obj.id = id;
         obj.noise_level = noise_level;
       end
