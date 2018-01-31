@@ -29,7 +29,7 @@ Q1 = ones(size(states,1) , Npower^4) * inf;
 sumQ = ones(size(states,1), Npower^4) * 0.0;
 % meanQ = ones(size(states,1) , Npower) * 0.0;
 
-alpha = 0.5; gamma = 0.9; epsilon = 0.1 ; Iterations = 50000;
+alpha = 0.5; gamma = 0.9; epsilon = 0.1 ; Iterations = 500000;
 CL = 0;
 %% Main Loop
 %     fprintf('Loop for %d number of FBS :\t', fbsCount);
@@ -128,7 +128,11 @@ CL = 0;
         state = PA.S_index;
         act = PA.P_index;
         nstate = PA.next_S_index;
-        PA.Q(state,act) = PA.Q(state,act) + alpha*(R+gamma*qMax(nstate)-PA.Q(state,act));
+        dd = PA.Q(state,act) + alpha*(R+gamma*qMax(nstate)-PA.Q(state,act));
+        if isnan(dd)
+            sprintf('here!');
+        end
+        PA.Q(state,act) = dd;
         PA.S_index = nstate;
         agents{j} = PA;
     end
