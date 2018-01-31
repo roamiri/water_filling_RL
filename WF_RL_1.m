@@ -59,7 +59,7 @@ CL = 0;
                 PA = agents{j};
                 if rand<epsilon
 %                   size_action = size(actions,2);
-                  index = floor(rand*size(actions,1));
+                  index = floor(rand*size(actions,1)+1);
                   PA.P_index = index;
                   PA.P = actions(index,:);
                 else
