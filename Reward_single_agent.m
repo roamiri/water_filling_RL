@@ -16,4 +16,5 @@ function R = Reward_single_agent(PA, Pmax)
     if R==Inf
         sprintf('here');
     end
+    R = R /log2(7.0); % normalized reward
 end
