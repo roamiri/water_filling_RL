@@ -7,6 +7,7 @@
 
 %% Initialization
 clc;
+clear;
 total = tic;
 %% Parameters
 Pmin = 0;                                                                                                                                                                                                                                                                                                                                                                           %dBm
@@ -37,9 +38,13 @@ alpha = 0.5; gamma = 0.9; epsilon = 0.1 ; Iterations = 50000;
     count = 0;
     errorVector = zeros(1,Iterations);
     agents = cell(1,4);
-    for i=1:4
-        agents{i} = agent(i); % Power Allocation Agent (PA)
-    end
+    agents{1} = agent(1,1.0); % Power Allocation Agent (PA)
+    agents{2} = agent(2,2.0);
+    agents{3} = agent(3,5.0);
+    agents{4} = agent(4,3.0);
+%     for i=1:4
+%         agents{i} = agent(i); % Power Allocation Agent (PA)
+%     end
    
     extra_time = 0.0;
     for episode = 1:Iterations
@@ -93,44 +98,32 @@ alpha = 0.5; gamma = 0.9; epsilon = 0.1 ; Iterations = 50000;
     for j=1:size(agents,2)
         PA = agents{j};
         index = PA.index;
-        R = Reward(PA.P, sum_p);
+        R = Reward(PA.P, sum_p, Pmax, PA.noise_level);
         PA.Q(index) = PA.Q(index) + alpha*(R-PA.Q(index));
         agents{i} = PA;
     end
-        % break if convergence: small deviation on q for 1000 consecutive
-        errorVector(episode) =  sum(sum(abs(Q1-sumQ)));
-        if sum(sum(abs(Q1-sumQ)))<0.001 && sum(sum(sumQ >0))
-            if count>1000
+    % break if convergence: small deviation on q for 1000 consecutive
+    errorVector(episode) =  sum(sum(abs(Q1-sumQ)));
+    if sum(sum(abs(Q1-sumQ)))<0.001 && sum(sum(sumQ >0))
+        if count>1000
 %                 episode;  % report last episode
-                break % for
-            else
-                count=count+1; % set counter if deviation of q is small
-            end
+            break % for
         else
-            Q1=sumQ;
-            count=0;  % reset counter when deviation of q from previous q is large
+            count=count+1; % set counter if deviation of q is small
         end
+    else
+        Q1=sumQ;
+        count=0;  % reset counter when deviation of q from previous q is large
+    end
     end
 %     Q = sumQ;
     answer.Q = sumQ;
     answer.Error = errorVector;
-    answer.FBS = BS_list;
-    for j=1:size(BS_list,2)
-        c_fue(1,j) = BS_list{1,j}.C_FUE;
-        p_fue(1,j) = BS_list{1,j}.P;
-    end
-    sum_CFUE = 0.0;
-    for i=1:size(BS_list,2)
-        sum_CFUE = sum_CFUE + BS_list{i}.C_FUE;
-    end
-    answer.C_FUE = c_fue;
-    answer.P_FUE = p_fue;
-    answer.sum_CFUE = sum_CFUE;
+    answer.agents = agents;
     answer.episode = episode;
     tt = toc(total);
     answer.time = tt - extra_time;
-    answer.q = q_ue;
     QFinal = answer;
-    save(sprintf('DATA/Jan30/R_4_q10/pro_%d_%d_%d.mat',Npower, bs_count, saveNum),'QFinal');
+    save(sprintf('DATA/WF_RL/pro_%d.mat',Npower),'QFinal');
 %     FBS_out = BS_list;
 % end

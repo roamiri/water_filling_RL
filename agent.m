@@ -3,14 +3,16 @@ classdef agent
       index
       id
       P
+      noise_level
       state = zeros(1,2)
       C
       C_profile = []
       Q
    end
    methods
-      function obj = agent(obj,id)
+      function obj = agent(obj,id,noise_level)
         obj.id = id;
+        obj.noise_level = noise_level;
       end
       
       function obj = setQTable(obj,QTable)
