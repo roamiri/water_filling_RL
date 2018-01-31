@@ -4,8 +4,8 @@
 %   Solving water-filling with RL
 %
 %% Initialization
+function WF_RL_1(Iterations)
 clc;
-clear;
 total = tic;
 %% Parameters
 Pmin = 0;                                                                                                                                                                                                                                                                                                                                                                           %dBm
@@ -29,11 +29,9 @@ Q1 = ones(size(states,1) , Npower^4) * inf;
 sumQ = ones(size(states,1), Npower^4) * 0.0;
 % meanQ = ones(size(states,1) , Npower) * 0.0;
 
-alpha = 0.5; gamma = 0.9; epsilon = 0.1 ; Iterations = 3.8e6;
+alpha = 0.5; gamma = 0.9; epsilon = 0.1 ; %Iterations = 3.8e6;
 CL = 0;
 %% Main Loop
-%     fprintf('Loop for %d number of FBS :\t', fbsCount);
-%      textprogressbar(sprintf('calculating outputs:'));
     count = 0;
     errorVector = zeros(1,Iterations);
     agents = cell(1,1);
@@ -138,17 +136,20 @@ CL = 0;
     end
     % break if convergence: small deviation on q for 1000 consecutive
     errorVector(episode) =  sum(sum(abs(Q1-sumQ)));
-    if sum(sum(abs(Q1-sumQ)))<0.001 && sum(sum(sumQ >0))
-        if count>1000
-%                 episode;  % report last episode
-            break % for
-        else
-            count=count+1; % set counter if deviation of q is small
-        end
-    else
-        Q1=sumQ;
-        count=0;  % reset counter when deviation of q from previous q is large
-    end
+    %%
+    % Stoping point
+%     if sum(sum(abs(Q1-sumQ)))<0.001 && sum(sum(sumQ >0))
+%         if count>1000
+% %                 episode;  % report last episode
+%             break % for
+%         else
+%             count=count+1; % set counter if deviation of q is small
+%         end
+%     else
+%         Q1=sumQ;
+%         count=0;  % reset counter when deviation of q from previous q is large
+%     end
+    
     end
 %     Q = sumQ;
     answer.Q = sumQ;
@@ -156,8 +157,7 @@ CL = 0;
     answer.agents = agents;
     answer.episode = episode;
     tt = toc(total);
-    answer.time = tt - extra_time;
+    answer.time = tt;
     QFinal = answer;
-    save(sprintf('DATA/WF_RL/pro_%d_%d.mat',Npower,Iterations),'QFinal');
-%     FBS_out = BS_list;
-% end
+    save(sprintf('DATA/WF_RL/pro_%de6.mat',Iterations/1e6),'QFinal');
+ end
