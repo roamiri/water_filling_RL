@@ -3,8 +3,6 @@
 %   Reinforcement Learning; Cooperative Learning (CL) 
 %   Solving water-filling with RL
 %
-% function PA_CL(Npower, bs_count, BS_Max, bs_permutation, NumRealization, saveNum, CL)
-
 %% Initialization
 clc;
 clear;
@@ -12,22 +10,23 @@ total = tic;
 %% Parameters
 Pmin = 0;                                                                                                                                                                                                                                                                                                                                                                           %dBm
 Pmax = 6;
-Npower = 31;
+Npower = 11;
 %% Minimum Rate Requirements for users
 % q_ue = 10.0;
 
 %% Q-Learning variables
 % Actios
-actions = linspace(Pmin, Pmax, Npower);
+action_range = linspace(Pmin, Pmax, Npower);
 
+actions = allcomb(action_range, action_range, action_range, action_range);
 % States
-states = [1,2]; % states = (dMUE , dBS)
+states = allcomb(0:1, 0:1, 0:1, 0:1);
 
 % Q-Table
 % Q = zeros(size(states,1) , size(actions , 2));
-Q_init = ones(1 , Npower) * 0.0;
-Q1 = ones(1 , Npower) * inf;
-sumQ = ones(1, Npower) * 0.0;
+Q_init = ones(size(states,1) , Npower^4) * 0.0;
+Q1 = ones(size(states,1) , Npower^4) * inf;
+sumQ = ones(size(states,1), Npower^4) * 0.0;
 % meanQ = ones(size(states,1) , Npower) * 0.0;
 
 alpha = 0.5; gamma = 0.9; epsilon = 0.1 ; Iterations = 50000;
@@ -37,11 +36,8 @@ CL = 0;
 %      textprogressbar(sprintf('calculating outputs:'));
     count = 0;
     errorVector = zeros(1,Iterations);
-    agents = cell(1,4);
-    agents{1} = agent(1,1.0); % Power Allocation Agent (PA)
-    agents{2} = agent(2,2.0);
-    agents{3} = agent(3,5.0);
-    agents{4} = agent(4,3.0);
+    agents = cell(1,1);
+    agents{1} = agent_4s(1,[1.0, 2.0, 5.0, 3.0]);
     for i=1:size(agents,2)
         PA = agents{i};
         PA = PA.setQTable(Q_init);
@@ -62,47 +58,78 @@ CL = 0;
             for j=1:size(agents,2)
                 PA = agents{j};
                 if rand<epsilon
-                  size_action = size(actions,2);  
-                  index = floor(rand*Npower+1);
-                  PA.index = index;
-                  PA.P = actions(index);
+%                   size_action = size(actions,2);
+                  index = floor(rand*size(actions,1));
+                  PA.P_index = index;
+                  PA.P = actions(index,:);
                 else
-                    a = tic;
+%                     a = tic;
+%                     for kk = 1:size(states,1)
+%                         if states(kk,:) == PA.state
+%                             break;
+%                         end
+%                     end
+                    kk = PA.S_index;% = kk;
                     if CL == 1 
-                        [M, index] = max(sumQ(1,:));     % CL method
+                        [M, index] = max(sumQ(kk,:));     % CL method
                     else                                    
-                        [M, index] = max(PA.Q(1,:));   %IL method
+                        [M, index] = max(PA.Q(kk,:));   %IL method
                     end
-                      a1 = toc(a);
-                      PA.index = index;
-                      PA.P = actions(index);
+                      PA.P_index = index;
+                      PA.P = actions(index,:);
                 end
                 agents{j} = PA;
             end
         else
             for j=1:size(agents,2)
                 PA = agents{j};
+%                 for kk = 1:size(states,1)
+%                     if states(kk,:) == PA.state
+%                         break;
+%                     end
+%                 end
+                kk = PA.S_index;% = kk;
                 if CL == 1 
-                    [M, index] = max(sumQ(1,:));     % CL method
+                    [M, index] = max(sumQ(kk,:));     % CL method
                 else                                    
-                    [M, index] = max(PA.Q(1,:));   %IL method
+                    [M, index] = max(PA.Q(kk,:));   %IL method
                 end
-                PA.index = index;
-                PA.P = actions(index);
+                PA.P_index = index;
+                PA.P = actions(index,:);
                 agents{j} = PA;
             end
         end 
-% Calculate Reward
-    sum_p = 0;
-    for j=1:size(agents,2)
-        PA = agents{j};
-        sum_p = sum_p + PA.P;
+
+% Update the state        
+    for i=1:size(agents,2)
+        PA = agents{i};
+        next_state = zeros(1,4);
+        for j=1:size(PA.P,2)
+            if PA.P(j)>PA.noise_level(j)
+                next_state(j) = 1;
+            else
+                next_state(j) = 0;
+            end
+        end
+        for kk = 1:size(states,1)
+            if states(kk,:) == next_state
+                break;
+            end
+        end
+        PA.next_S_index = kk;
+        agents{i} = PA;
     end
+    
+    % Calculate Reward
     for j=1:size(agents,2)
         PA = agents{j};
-        index = PA.index;
-        R = Reward(PA.P, sum_p, Pmax, PA.noise_level);
-        PA.Q(index) = PA.Q(index) + alpha*(R-PA.Q(index));
+        qMax=max(PA.Q,[],2);
+        R = Reward_single_agent(PA,Pmax);
+        state = PA.S_index;
+        act = PA.P_index;
+        nstate = PA.next_S_index;
+        PA.Q(state,act) = PA.Q(state,act) + alpha*(R+gamma*qMax(nstate)-PA.Q(state,act));
+        PA.S_index = nstate;
         agents{j} = PA;
     end
     % break if convergence: small deviation on q for 1000 consecutive
