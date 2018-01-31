@@ -29,7 +29,7 @@ Q1 = ones(size(states,1) , Npower^4) * inf;
 sumQ = ones(size(states,1), Npower^4) * 0.0;
 % meanQ = ones(size(states,1) , Npower) * 0.0;
 
-alpha = 0.5; gamma = 0.9; epsilon = 0.1 ; Iterations = 2e5;
+alpha = 0.5; gamma = 0.9; epsilon = 0.1 ; Iterations = 2e6;
 CL = 0;
 %% Main Loop
 %     fprintf('Loop for %d number of FBS :\t', fbsCount);
