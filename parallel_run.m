@@ -6,7 +6,7 @@ function parallel_run()
 % parpool(pref_poolSize)
 
 ts = 4e4; % table size
-iter = [ts, 10*ts, 20*ts, 50*ts, 100*ts];
+iter = [ts, 10*ts, 20*ts, 40*ts, 50*ts];
 
 % parfor_progress(5);
  for i=1:5

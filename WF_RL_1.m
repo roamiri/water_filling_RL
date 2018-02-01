@@ -160,5 +160,5 @@ CL = 0;
     tt = toc(total);
     answer.time = tt;
     QFinal = answer;
-    save(sprintf('DATA/WF_RL/pro_%1.1fe6.mat',Iterations/1e6),'QFinal');
+    save(sprintf('DATA/R_2/pro_%1.1fe6.mat',Iterations/1e5),'QFinal');
  end
