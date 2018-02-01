@@ -6,15 +6,15 @@ function R = Reward_single_agent(PA, Pmax)
 %         punish = log2(dd);
 %     end
     
-    R = 0;
+    R = 0.0;
     for i=1:size(PA.P,2)
         p = PA.P(i);
         n = PA.noise_level(i);
-        R = R + 1+p/n;
+        R = R + log2(1+p/n);
     end
     R = R - punish;
     if R==Inf
         sprintf('here');
     end
-    R = R /(7.0); % normalized reward
+    R = R /(6.0); % normalized reward
 end

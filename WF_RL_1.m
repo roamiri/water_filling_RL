@@ -76,6 +76,7 @@ CL = 0;
                       PA.P_index = index;
                       PA.P = actions(index,:);
                 end
+                PA.C_profile = [PA.C_profile calc(PA)];
                 agents{j} = PA;
             end
         else
@@ -139,18 +140,18 @@ CL = 0;
     errorVector(episode) =  sum(sum(abs(Q1-sumQ)));
     %%
     % Stoping point
-%     if sum(sum(abs(Q1-sumQ)))<0.001 && sum(sum(sumQ >0))
-%         if count>1000
-% %                 episode;  % report last episode
-%             break % for
-%         else
-%             count=count+1; % set counter if deviation of q is small
-%         end
-%     else
-%         Q1=sumQ;
-%         count=0;  % reset counter when deviation of q from previous q is large
-%     end
-    
+    if sum(sum(abs(Q1-sumQ)))<0.001 && sum(sum(sumQ >0))
+        if count>1000
+%                 episode;  % report last episode
+            break % for
+        else
+            count=count+1; % set counter if deviation of q is small
+        end
+    else
+        Q1=sumQ;
+        count=0;  % reset counter when deviation of q from previous q is large
+    end
+  
     end
 %     Q = sumQ;
     answer.Q = sumQ;
@@ -160,5 +161,5 @@ CL = 0;
     tt = toc(total);
     answer.time = tt;
     QFinal = answer;
-    save(sprintf('DATA/R_2/pro_%1.1fe6.mat',Iterations/1e5),'QFinal');
+    save(sprintf('DATA/R_3/pro_%1.1fe6.mat',Iterations/1e5),'QFinal');
  end
