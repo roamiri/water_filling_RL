@@ -29,7 +29,7 @@ classdef agent_4s
       
       function obj = setCapacity(obj,c)
         obj.C_FUE = c;
-%         obj.C_profile = [obj.C_profile c];
+        obj.C_profile = [obj.C_profile c];
       end
       
    end

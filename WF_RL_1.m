@@ -94,6 +94,7 @@ CL = 0;
                 end
                 PA.P_index = index;
                 PA.P = actions(index,:);
+                PA.C_profile = [PA.C_profile calc(PA)];
                 agents{j} = PA;
             end
         end 
@@ -159,5 +160,5 @@ CL = 0;
     tt = toc(total);
     answer.time = tt;
     QFinal = answer;
-    save(sprintf('DATA/WF_RL/pro_%de6.mat',Iterations/1e6),'QFinal');
+    save(sprintf('DATA/WF_RL/pro_%1.1fe6.mat',Iterations/1e6),'QFinal');
  end
