@@ -58,13 +58,7 @@ CL = 0;
                   PA.P_index = index;
                   PA.P = actions(index,:);
                 else
-%                     a = tic;
-%                     for kk = 1:size(states,1)
-%                         if states(kk,:) == PA.state
-%                             break;
-%                         end
-%                     end
-                    kk = PA.S_index;% = kk;
+                    kk=1;
                     if CL == 1 
                         [M, index] = max(sumQ(kk,:));     % CL method
                     else                                    
@@ -79,12 +73,7 @@ CL = 0;
         else
             for j=1:size(agents,2)
                 PA = agents{j};
-%                 for kk = 1:size(states,1)
-%                     if states(kk,:) == PA.state
-%                         break;
-%                     end
-%                 end
-                kk = PA.S_index;% = kk;
+                kk = 1;
                 if CL == 1 
                     [M, index] = max(sumQ(kk,:));     % CL method
                 else                                    
@@ -97,40 +86,18 @@ CL = 0;
             end
         end 
 
-% Update the state        
-    for i=1:size(agents,2)
-        PA = agents{i};
-        next_state = zeros(1,4);
-        for j=1:size(PA.P,2)
-            if PA.P(j)>PA.noise_level(j)
-                next_state(j) = 1;
-            else
-                next_state(j) = 0;
-            end
-        end
-        for kk = 1:size(states,1)
-            if states(kk,:) == next_state
-                break;
-            end
-        end
-        PA.next_S_index = kk;
-        agents{i} = PA;
-    end
     
     % Calculate Reward
     for j=1:size(agents,2)
         PA = agents{j};
         qMax=max(PA.Q,[],2);
         R = Reward_single_agent(PA,Pmax);
-        state = PA.S_index;
         act = PA.P_index;
-        nstate = PA.next_S_index;
-        dd = PA.Q(state,act) + alpha*(R+gamma*qMax(nstate)-PA.Q(state,act));
+        dd = PA.Q(1,act) + alpha*(R-PA.Q(1,act));
         if isnan(dd)
             sprintf('here!');
         end
-        PA.Q(state,act) = dd;
-        PA.S_index = nstate;
+        PA.Q(1,act) = dd;
         agents{j} = PA;
     end
     % break if convergence: small deviation on q for 1000 consecutive
@@ -158,5 +125,5 @@ CL = 0;
     tt = toc(total);
     answer.time = tt;
     QFinal = answer;
-    save(sprintf('DATA/R_3/pro_%1.1fe6.mat',Iterations/1e5),'QFinal');
+    save(sprintf('DATA/1s/pro_%1.1fe6.mat',Iterations/1e5),'QFinal');
  end

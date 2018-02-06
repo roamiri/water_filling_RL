@@ -10,7 +10,7 @@ classdef agent_1s
       Q
    end
    methods
-      function obj = agent_4s(id,noise_level)
+      function obj = agent_1s(id,noise_level)
         obj.id = id;
         obj.noise_level = noise_level;
       end
