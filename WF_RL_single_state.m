@@ -19,15 +19,12 @@ Npower = 7;
 action_range = linspace(Pmin, Pmax, Npower);
 
 actions = allcomb(action_range, action_range, action_range, action_range);
-% States
-states = allcomb(0:1, 0:1, 0:1, 0:1);
 
 % Q-Table
 % Q = zeros(size(states,1) , size(actions , 2));
-Q_init = ones(size(states,1) , Npower^4) * 0.0;
-Q1 = ones(size(states,1) , Npower^4) * inf;
-sumQ = ones(size(states,1), Npower^4) * 0.0;
-% meanQ = ones(size(states,1) , Npower) * 0.0;
+Q_init = ones(1 , Npower^4) * 0.0;
+Q1 = ones(1 , Npower^4) * inf;
+sumQ = ones(1, Npower^4) * 0.0;
 
 alpha = 0.5; gamma = 0.9; epsilon = 0.1 ; %Iterations = 3.8e6;
 CL = 0;
@@ -35,7 +32,7 @@ CL = 0;
     count = 0;
     errorVector = zeros(1,Iterations);
     agents = cell(1,1);
-    agents{1} = agent_4s(1,[1.0, 2.0, 5.0, 3.0]);
+    agents{1} = agent_1s(1,[1.0, 2.0, 5.0, 3.0]);
     for i=1:size(agents,2)
         PA = agents{i};
         PA = PA.setQTable(Q_init);
